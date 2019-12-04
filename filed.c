@@ -56,9 +56,12 @@ int main(int argc, char *argv[]) {
         host = Gethostbyaddr((const char *)&clientaddress.sin_addr.s_addr,
                             sizeof(clientaddress.sin_addr.s_addr), AF_INET);
         homeAddress = inet_ntoa(clientaddress.sin_addr);
-    
+        printf("Secret key = %s\n",configs.secretKey );
+        printf("Request type = %d\n", argv[0] );
+        printf("Detail = add newkey here\n");
+        printf("--------------------------");
         printf("port: %d\n", configs.port);
-        printf("Secret key: %d\n", configs.secretKey);
+        
         printf("Connected to: %s from: %s\n", host->h_name, homeAddress);
         echo(connector);
     }
