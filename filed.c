@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
     struct hostent *host;
     char * homeAddress;
     int listener, connector;
-    //rio_t requestKey[4];        // Secret key used by client for request.
+    
     if(argc != 3) {
         perror("Could not start server based on command line argruments.\n");
         return 0;
@@ -60,15 +60,31 @@ int main(int argc, char *argv[]) {
         host = Gethostbyaddr((const char *)&clientaddress.sin_addr.s_addr,
                             sizeof(clientaddress.sin_addr.s_addr), AF_INET);
         homeAddress = inet_ntoa(clientaddress.sin_addr);
-        printf("Secret key = %d\n",configs.secretKey );
+        printf("Secret key = %d\n",configs.secretKey ); // Needs to be key supplied by client.
         printf("Request type = %s\n", argv[0] );
         printf("Detail = add newkey here\n");
         printf("--------------------------");
         printf("port: %d\n", configs.port);
         
         printf("Connected to: %s from: %s\n", host->h_name, homeAddress);
+        rio_t secretRio;
+        char bufferIn[12];
+        Rio_readinitb(&secretRio, connector);
+       
 
-        result(connector);
+        Rio_readnb(&secretRio, bufferIn, 6);
+        printf("server secret key: %d\n", (unsigned int)configs.secretKey);
+        //printf("client read: %s\n", secretBuf);
+        char *keyIn = malloc(sizeof(unsigned int));
+        char *typeReq = malloc(2);
+        printf("Client key+type: %s\n", bufferIn);
+        strncpy(keyIn, bufferIn, 4);
+        strncpy(typeReq, bufferIn + 4, 2);
+        printf("keyIn: %s\n", keyIn);
+        printf("Request In: %s\n", typeReq);
+        Rio_writen(connector,"Suc\n",4);         // Write back to client success/fail.
+        
+        //result(connector);
         Close(connector);
     }
 

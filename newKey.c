@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     rio_t rio;
     char * response[64];
     
-    char *message = malloc(12);
+    char message[12];
     char padding[2] = "pa";
     if(argc != 5) {
         perror("Unable to make request with command line arguments.\n");
@@ -33,33 +33,25 @@ int main(int argc, char *argv[]) {
     else{   // Retrieve request information from command line.
         requestInfo.port = atoi(argv[2]);
         strcpy(requestInfo.machineName, argv[1]);
-        *requestInfo.secretKey = (unsigned int)atoi(argv[3]);
-        *requestInfo.newKey = (unsigned int)atoi(argv[4]);
+        strcpy(requestInfo.secretKey, argv[3]);
+        strcpy(requestInfo.newKey, argv[4]);
         *requestInfo.requestType = (unsigned short int)0;
     }
-
+    printf("secret key used: %d\n", atoi(requestInfo.secretKey));
     clientConnection = Open_clientfd(requestInfo.machineName, requestInfo.port);
 
     Rio_readinitb(&rio, clientConnection);
+    sprintf(message, "%d%d%d%d", *requestInfo.secretKey
+                                    ,*requestInfo.requestType
+                                    ,*padding
+                                    ,*requestInfo.newKey);
     
     
-    //sprintf(message, "%d%hu%c%c%d",requestInfo.secretKey,requestInfo.requestType,padding[0],
-    //                    padding[1],requestInfo.newKey);
-    //memcpy
-    size_t two = 2;
-    size_t four = 4;
-    memcpy(message,requestInfo.secretKey,four);
-    memcpy(message +4, requestInfo.requestType,two);
-    memcpy(message +6, padding, two);
-    memcpy(message +8, requestInfo.newKey, four);
-    
-    //printf("size of message: %ld\n",sizeof(requestInfo.secretKey) + sizeof(requestInfo.requestType)
-    //            + sizeof(padding[0]) + sizeof(padding[1]) + sizeof(requestInfo.newKey));
-    printf("message contents: %.12s\n", message);
     printf("message size: %ld\n", sizeof(message));
+    printf("message in ascii: %s\n", message);
     Rio_writen(clientConnection, message, sizeof(message) );
-    Rio_readlineb(&rio, response, 64);
-    printf("%s", *response);
-    close(clientConnection);
+    Rio_readlineb(&rio, response, 4);
+    printf("%s", rio.rio_buf);
+    Close(clientConnection);
     return 0;
 }
