@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "csapp.h"
 
 struct requestConfig {
     unsigned short port;            // Port server is listening to.
@@ -11,9 +12,13 @@ struct requestConfig {
 } requestInfo;
 
 int main(int argc, char *argv[]) {
+    int clientConnection;
+    rio_t rio;
+    char * response[64];
+    char message[11];
     if(argc != 5) {
         perror("Unable to make request with command line arguments.\n");
-        return 0;
+        return -1;
     }
     else{   // Retrieve request information from command line.
         requestInfo.port = atoi(argv[2]);
@@ -21,9 +26,14 @@ int main(int argc, char *argv[]) {
         requestInfo.secretKey = atoi(argv[3]);
         requestInfo.newKey = atoi(argv[4]);
     }
-    // Test retrieval of command line arguments.
-    printf("MachineName: %s\n", requestInfo.machineName);
-    printf("Port: %d\n", requestInfo.port);
-    printf("Secret Key: %d\n", requestInfo.secretKey);
-    printf("New Key: %d\n", requestInfo.newKey);
+
+    clientConnection = Open_clientfd(requestInfo.machineName, requestInfo.port);
+
+    Rio_readinitb(&rio, clientConnection);
+    sprintf(message, "%d",requestInfo.newKey);
+    Rio_writen(clientConnection, message, sizeof(requestInfo.newKey) );
+    Rio_readlineb(&rio, response, 64);
+    printf("%s", *response);
+    Close(clientConnection);
+    return 0;
 }

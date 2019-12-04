@@ -13,7 +13,7 @@ struct requestConfig {
 int main(int argc, char *argv[]) {
     if(argc != 5) {
         perror("Unable to make request with command line arguments.\n");
-        return 0;
+        return -1;
     }
     else{   // Retrieve request information from command line.
         requestInfo.port = atoi(argv[2]);
