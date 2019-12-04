@@ -9,13 +9,16 @@ struct requestConfig {
     unsigned int secretKey;         // Current secret key server is using.
     unsigned int newKey;            // New secret key for server to use.
     char machineName[40];   // Host name of server.
+    unsigned short requestType;
 } requestInfo;
 
 int main(int argc, char *argv[]) {
     int clientConnection;
     rio_t rio;
     char * response[64];
-    char message[11];
+    char contents[11];
+    char *message = contents;
+    char padding[2] = "pa";
     if(argc != 5) {
         perror("Unable to make request with command line arguments.\n");
         return -1;
@@ -25,15 +28,22 @@ int main(int argc, char *argv[]) {
         strcpy(requestInfo.machineName, argv[1]);
         requestInfo.secretKey = atoi(argv[3]);
         requestInfo.newKey = atoi(argv[4]);
+        requestInfo.requestType = 0;
     }
 
     clientConnection = Open_clientfd(requestInfo.machineName, requestInfo.port);
 
     Rio_readinitb(&rio, clientConnection);
-    sprintf(message, "%d",requestInfo.newKey);
-    Rio_writen(clientConnection, message, sizeof(requestInfo.newKey) );
+    
+    
+    sprintf(message, "%d%d%c%c%d\n",requestInfo.secretKey,requestInfo.requestType,padding[0],
+                        padding[1],requestInfo.newKey);
+    printf("size of message: %ld\n",sizeof(sizeof(requestInfo.secretKey) + sizeof(requestInfo.requestType)
+                + sizeof(padding) + sizeof(requestInfo.newKey)));
+    printf("message: %s\n", message);
+    Rio_writen(clientConnection, message, sizeof(contents) );
     Rio_readlineb(&rio, response, 64);
     printf("%s", *response);
-    Close(clientConnection);
+    close(clientConnection);
     return 0;
 }

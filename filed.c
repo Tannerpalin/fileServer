@@ -5,7 +5,7 @@
 #include "csapp.h"
 
 struct requestType {
-    
+    short unsigned int requestType; // 0: newKey, 1: fileGet, 2: fileDigest, 3: fileRun
     int requestStatus;              // Simple success or failure of request.
 
 } clientRequest;
@@ -16,17 +16,18 @@ struct connectionConfig {
     unsigned int secretKey;     // unsigned, positive, secret request key.
 } configs;
 
-void echo(int connfd) 
+void result(int connfd) // Example echo from echoclient
 {
     size_t n; 
-    char buf[MAXLINE]; 
+    char buffer[MAXLINE]; 
     rio_t rio;
 
     Rio_readinitb(&rio, connfd);
-    while((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0) { //line:netp:echo:eof
+    n = Rio_readlineb(&rio, buffer, MAXLINE); //line:netp:echo:eof
 	printf("server received %d bytes\n", (int)n);
-	Rio_writen(connfd, buf, n);
-    }
+    printf("Rio buf: %s\n", rio.rio_buf);
+	Rio_writen(connfd, buffer, n);
+    
 }
 
 int main(int argc, char *argv[]) {
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]) {
     struct hostent *host;
     char * homeAddress;
     int listener, connector;
-
+    rio_t requestKey[4];        // Secret key used by client for request.
     if(argc != 3) {
         perror("Could not start server based on command line argruments.\n");
         return 0;
@@ -43,8 +44,7 @@ int main(int argc, char *argv[]) {
     else {  // Set the port number and secret key
         configs.port = atoi(argv[1]);
         configs.secretKey = atoi(argv[2]);
-        // TODO: Need to get IPv4 or DNS of the machine server is running on.
-        // inet_ntoa(configs.machineName);
+        
     }
     
     listener = Open_listenfd(configs.port);
@@ -60,7 +60,9 @@ int main(int argc, char *argv[]) {
         printf("port: %d\n", configs.port);
         printf("Secret key: %d\n", configs.secretKey);
         printf("Connected to: %s from: %s\n", host->h_name, homeAddress);
-        echo(connector);
+
+        result(connector);
+        Close(connector);
     }
 
     
