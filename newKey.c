@@ -10,12 +10,12 @@ struct requestConfig {
     char machineName[40];   // Host name of server.
 } requestInfo;
 
-void main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
     if(argc != 5) {
         perror("Unable to make request with command line arguments.\n");
-        return;
+        return 0;
     }
-    else{
+    else{   // Retrieve request information from command line.
         requestInfo.port = atoi(argv[2]);
         strcpy(requestInfo.machineName, argv[1]);
         requestInfo.secretKey = atoi(argv[3]);
