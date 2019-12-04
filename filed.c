@@ -18,16 +18,20 @@ struct connectionConfig {
 
 void result(int connfd) // Example echo from echoclient
 {
-    size_t n; 
+    size_t n = 12; // or whatver number is needed for request.
     char buffer[MAXLINE]; 
     rio_t rio;
 
     Rio_readinitb(&rio, connfd);
-    n = Rio_readlineb(&rio, buffer, MAXLINE); //line:netp:echo:eof
+    Rio_readnb(&rio, buffer, n);
+    //n = Rio_readlineb(&rio, buffer, MAXLINE); //line:netp:echo:eof
 	printf("server received %d bytes\n", (int)n);
-    printf("Rio buf: %s\n", rio.rio_buf);
-	Rio_writen(connfd, buffer, n);
+
     
+	Rio_writen(connfd, buffer, n);
+    printf("another attempt rio buf: %s\n", rio.rio_buf);
+    printf("buffer: %s\n", buffer);
+    printf("size of rio buf: %ld\n", sizeof(rio.rio_buf));
 }
 
 int main(int argc, char *argv[]) {
