@@ -16,10 +16,10 @@ struct connectionConfig {
     unsigned int secretKey;     // unsigned, positive, secret request key.
 } configs;
 
-int main(int argc, char *argv[]) {
+void main(int argc, char *argv[]) {
     if(argc != 3) {
         perror("Could not start server based on command line argruments.\n");
-        exit(1);
+        return;
     }
     else {  // Set the port number and secret key
         configs.port = atoi(argv[1]);
