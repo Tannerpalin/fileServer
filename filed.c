@@ -20,18 +20,14 @@ struct requestStruct {
 
 
 int main(int argc, char *argv[]) {
-    socklen_t clientSock;
-    struct sockaddr_in clientaddress;
-    struct hostent *host;
-    char * homeAddress;
-    int listener, connector;
-    
+    struct sockaddr_in sa;
+
     if(argc != 3) {
         perror("Could not start server based on command line argruments.\n");
         return 0;
     }
-    else {  // Set the port number and secret key
-        
+    else {  // Set the port number and secret key from command line.
+        inet_pton(AF_INET,"127.0.0.1", &(sa.sin_addr)); // Save IP address to socket.
         
     }
     
