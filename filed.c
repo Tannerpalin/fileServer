@@ -67,23 +67,38 @@ int main(int argc, char *argv[]) {
         printf("port: %d\n", configs.port);
         
         printf("Connected to: %s from: %s\n", host->h_name, homeAddress);
-        
-        //char *bufferIn = malloc(6);
-        char * keyIn = malloc(4);
-        //char *typeReq = malloc(2);
-        rio_t rio;
-        Rio_readinitb(&rio, connector);
-       
-        //size_t q = 4;
-        Rio_readlineb(&rio, keyIn, 32);
 
-        printf("Secret key in: %s\n", keyIn);
+        // NEED TO READ IN CHUNKS OF DATA ONE LINE AT A TIME.
+        
+        rio_t rio;
+        // Receive the secret key chunk, check validity.
+        
+        char * keyIn = malloc(4);
+        Rio_readinitb(&rio, connector);
+        Rio_readlineb(&rio, keyIn, 32);
+        printf("Secret key in: %d\n", atoi(keyIn));
         printf("server secret key: %d\n", (unsigned int)configs.secretKey);
-        // NEED TO PASS IN CHUNKS OF DATA ONE AT A TIME.
         
+
+
+        // Receive the request type chunk.
+        char *typeReq = malloc(2);
+        Rio_readinitb(&rio, connector);
+        Rio_readlineb(&rio, typeReq, 32);
+        printf("Request type: %d\n", atoi(typeReq));
         
-        
-        Rio_writen(connector,"Suc\n",4);         // Write back to client success/fail.
+        // Receive the two bytes of padding.
+        char *padd = malloc(2);
+        Rio_readinitb(&rio, connector);
+        Rio_readlineb(&rio, padd, 32);
+        printf("Pad: %d received\n", *padd);
+
+        // Receive parameters based on the request type.
+
+        // Call function passing parameters depending on request type.
+        // Write back to client success or information within its funcion.
+        Rio_readinitb(&rio, connector);
+        Rio_writen(connector,"Suc\n",16);         // Write back to client success/fail.
         
         
         Close(connector);   // Close client connection.
