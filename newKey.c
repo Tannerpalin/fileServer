@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     initConfigs();
     int clientConnection;
     rio_t rio;
-    char * response[64];
+    char *status = malloc(4);
     
     if(argc != 5) {
         perror("Unable to make request with command line arguments.\n");
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
         *requestInfo.requestType = (unsigned short int)0;
     }
 
-    // MUST SEND CHUNKS ONE AT A TIME, READ THEM IN USING READLINE.
+    // MUST SEND CHUNKS ONE AT A TIME, READ THEM IN USING READLINE?.
     // Send the client secret key chunk.
     printf("secret key used: %d\n", atoi(requestInfo.secretKey));
     clientConnection = Open_clientfd(requestInfo.machineName, requestInfo.port);
@@ -49,14 +49,14 @@ int main(int argc, char *argv[]) {
     Rio_writen(clientConnection, requestInfo.requestType, strlen(requestInfo.requestType));
     
     // Send two bytes of padding.
-    printf("Sending padding: %s\n", "pa");
+    printf("Sending padding: %s\n", "p");
     Rio_readinitb(&rio, clientConnection);
-    Rio_writen(clientConnection, "pa", sizeof("pa"));
+    Rio_writen(clientConnection, "p", sizeof("p"));
 
-    char *status = malloc(4);
-    Rio_readinitb(&rio, clientConnection);
-    Rio_readlineb(&rio, status, 16);
-    printf("%s", status);
+    // Send parameters
+
+    //Rio_readlineb(&rio, status, 16);
+    //printf("%s", status);
     Close(clientConnection);
     return 0;
 }

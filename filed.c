@@ -69,36 +69,46 @@ int main(int argc, char *argv[]) {
         printf("Connected to: %s from: %s\n", host->h_name, homeAddress);
 
         // NEED TO READ IN CHUNKS OF DATA ONE LINE AT A TIME.
-        
+        size_t w;
         rio_t rio;
-        // Receive the secret key chunk, check validity.
+        
         
         char * keyIn = malloc(4);
-        Rio_readinitb(&rio, connector);
-        Rio_readlineb(&rio, keyIn, 32);
-        printf("Secret key in: %d\n", atoi(keyIn));
-        printf("server secret key: %d\n", (unsigned int)configs.secretKey);
-        
-
-
-        // Receive the request type chunk.
         char *typeReq = malloc(2);
-        Rio_readinitb(&rio, connector);
-        Rio_readlineb(&rio, typeReq, 32);
-        printf("Request type: %d\n", atoi(typeReq));
-        
-        // Receive the two bytes of padding.
         char *padd = malloc(2);
         Rio_readinitb(&rio, connector);
-        Rio_readlineb(&rio, padd, 32);
-        printf("Pad: %d received\n", *padd);
+        Rio_readlineb(&rio, keyIn, 32); // Receive the secret key chunk, check validity.
+        Rio_readlineb(&rio, typeReq, 32); // Receive the request type chunk.
+        Rio_readlineb(&rio, padd, 32); // Receive the two bytes of padding.
 
+        printf("Secret key in: %d\n", atoi(keyIn));
+        printf("server secret key: %d\n", (unsigned int)configs.secretKey);
+        printf("Request type: %d\n", atoi(typeReq));
+        printf("Pad: %d received\n", *padd);
+        if(atoi(keyIn) != (unsigned int)configs.secretKey) {
+            Rio_writen(connector, "failure\n",9);
+        }
+
+
+        
+        
+        
+        
+        
+
+        
+        
+        
+        
+        
+        
         // Receive parameters based on the request type.
 
         // Call function passing parameters depending on request type.
         // Write back to client success or information within its funcion.
-        Rio_readinitb(&rio, connector);
-        Rio_writen(connector,"Suc\n",16);         // Write back to client success/fail.
+        //char *results = malloc(4);
+        //strcpy(results, "Suc\n");
+        //Rio_writen(connector, results,16);         // Write back to client success/fail.
         
         
         Close(connector);   // Close client connection.
