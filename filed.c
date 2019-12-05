@@ -11,9 +11,14 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-
-
 #define BACKLOG 10   // how many pending connections queue will hold
+
+struct requestIn {
+    unsigned int keyIn;
+    unsigned short int requestType;
+    char padding[2];
+    char requestData[100];
+}*requestIn;
 
 void sigchld_handler(int s)
 {
@@ -122,6 +127,7 @@ int main(int argc, char *argv[])
 
         if (!fork()) { // this is the child process
             close(sockfd); // child doesn't need the listener
+            recv(new_fd, requestIn, sizeof(requestIn), 0);
             if (send(new_fd, "Hello, world!", 13, 0) == -1)
                 perror("send");
             close(new_fd);
