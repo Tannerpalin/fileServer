@@ -41,15 +41,14 @@ int main(int argc, char *argv[]) {
     clientConnection = Open_clientfd(requestInfo.machineName, requestInfo.port);
 
     Rio_readinitb(&rio, clientConnection);
-    sprintf(message, "%d%d%d%d", *requestInfo.secretKey
-                                    ,*requestInfo.requestType
-                                    ,*padding
-                                    ,*requestInfo.newKey);
     
+
+    char secretKeyOut[4];
+    memcpy(secretKeyOut, requestInfo.secretKey, 4);
     
-    printf("message size: %ld\n", sizeof(message));
-    printf("message in ascii: %s\n", message);
-    Rio_writen(clientConnection, message, sizeof(message) );
+    Rio_writen(clientConnection, requestInfo.secretKey, strlen(requestInfo.secretKey));
+
+    
     Rio_readlineb(&rio, response, 4);
     printf("%s", rio.rio_buf);
     Close(clientConnection);

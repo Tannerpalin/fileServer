@@ -18,20 +18,20 @@ struct connectionConfig {
 
 void result(int connfd) // Example echo from echoclient
 {
-    size_t n = 12; // or whatver number is needed for request.
+    //ize_t n; // or whatver number is needed for request.
     char buffer[MAXLINE]; 
-    rio_t rio;
+    rio_t rioR;
 
-    Rio_readinitb(&rio, connfd);
-    Rio_readnb(&rio, buffer, n);
-    //n = Rio_readlineb(&rio, buffer, MAXLINE); //line:netp:echo:eof
-	printf("server received %d bytes\n", (int)n);
+    Rio_readinitb(&rioR, connfd);
+    //Rio_readnb(&rioR, buffer, n);
+    //n = Rio_readlineb(&rioR, buffer, MAXLINE); //line:netp:echo:eof
+	//printf("server received %d bytes\n", (int)n);
 
     
-	Rio_writen(connfd, buffer, n);
-    printf("another attempt rio buf: %s\n", rio.rio_buf);
+	//Rio_writen(connfd, buffer, n);
+    printf("another attempt rio buf: %s\n", rioR.rio_buf);
     printf("buffer: %s\n", buffer);
-    printf("size of rio buf: %ld\n", sizeof(rio.rio_buf));
+    printf("size of rio buf: %ld\n", sizeof(rioR.rio_buf));
 }
 
 int main(int argc, char *argv[]) {
@@ -68,25 +68,21 @@ int main(int argc, char *argv[]) {
         
         printf("Connected to: %s from: %s\n", host->h_name, homeAddress);
         
-        char *bufferIn = malloc(6);
-        size_t p;
-        //Rio_readinitb(&secretRio, connector);
+        //char *bufferIn = malloc(6);
+        char * keyIn = malloc(4);
+        //char *typeReq = malloc(2);
+        rio_t rio;
+        Rio_readinitb(&rio, connector);
        
-        size_t q = 6;
-        p = Rio_readn(connector, bufferIn, q);
-        printf("Number of bytes read: %d\n", (int)p);
+        //size_t q = 4;
+        Rio_readlineb(&rio, keyIn, 32);
+
+        printf("Secret key in: %s\n", keyIn);
         printf("server secret key: %d\n", (unsigned int)configs.secretKey);
+        // NEED TO PASS IN CHUNKS OF DATA ONE AT A TIME.
         
-        char *keyIn = malloc(sizeof(int));
-        char *typeReq = malloc(2);
-        size_t k = 4;
-        size_t l = 2;
-        printf("Buffer in: %s\n", bufferIn);
-        printf("Buffer atoi: %d\n", atoi(bufferIn));
-        strncpy(keyIn, bufferIn, k);
-        strncpy(typeReq, (bufferIn + 4), l);
-        printf("keyIn: %s\n", keyIn);
-        printf("Request In: %s\n", typeReq);
+        
+        
         Rio_writen(connector,"Suc\n",4);         // Write back to client success/fail.
         
         
