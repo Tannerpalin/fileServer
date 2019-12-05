@@ -2,7 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "csapp.h"
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <stdint.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
 
 struct requestConfig {
     unsigned short port;            // Port server is listening to.
@@ -12,17 +18,11 @@ struct requestConfig {
     char *requestType;
 } requestInfo;
 
-void initConfigs() {
-    requestInfo.secretKey = malloc(sizeof(unsigned int));
-    requestInfo.requestType = malloc(sizeof(unsigned short int));
-    requestInfo.newKey = malloc(sizeof(unsigned int));
-}
 
 int main(int argc, char *argv[]) {
     initConfigs();
     int clientConnection;
-    rio_t rio;
-    char *status = malloc(4);
+    char *status = malloc(16);
     
     if(argc != 5) {
         perror("Unable to make request with command line arguments.\n");
@@ -36,27 +36,7 @@ int main(int argc, char *argv[]) {
         *requestInfo.requestType = (unsigned short int)0;
     }
 
-    // MUST SEND CHUNKS ONE AT A TIME, READ THEM IN USING READLINE?.
-    // Send the client secret key chunk.
-    printf("secret key used: %d\n", atoi(requestInfo.secretKey));
-    clientConnection = Open_clientfd(requestInfo.machineName, requestInfo.port);
-    Rio_readinitb(&rio, clientConnection);
-    Rio_writen(clientConnection, requestInfo.secretKey, strlen(requestInfo.secretKey));
     
-    // Send the client request type chunk.
-    printf("Request type to be used: %d\n", atoi(requestInfo.requestType));
-    Rio_readinitb(&rio, clientConnection);
-    Rio_writen(clientConnection, requestInfo.requestType, strlen(requestInfo.requestType));
-    
-    // Send two bytes of padding.
-    printf("Sending padding: %s\n", "p");
-    Rio_readinitb(&rio, clientConnection);
-    Rio_writen(clientConnection, "p", sizeof("p"));
-
-    // Send parameters
-
-    //Rio_readlineb(&rio, status, 16);
-    //printf("%s", status);
-    Close(clientConnection);
+    //Close(clientConnection);
     return 0;
 }
