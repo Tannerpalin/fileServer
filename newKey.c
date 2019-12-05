@@ -30,14 +30,16 @@ void *get_in_addr(struct sockaddr *sa)
 
 int main(int argc, char *argv[])
 {
+
     int sockfd, numbytes;  
     char buf[MAXDATASIZE];
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
+        
 
-    if (argc != 2) {
-        fprintf(stderr,"Usage: client hostname\n");
+    if (argc != 3) {
+        fprintf(stderr,"Usage: client hostname port\n");
         exit(1);
     }
 
@@ -45,7 +47,7 @@ int main(int argc, char *argv[])
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
-    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0) {
+    if ((rv = getaddrinfo(argv[1], argv[2], &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
@@ -91,3 +93,49 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// struct requestConfig {
+//     unsigned short port;            // Port server is listening to.
+//     char *secretKey;         // Current secret key server is using.
+//     char *newKey;            // New secret key for server to use.
+//     char hostName[40];   // Host name of server.
+//     char *requestType;
+// } requestInfo;
+
+
+// int main(int argc, char *argv[]) {
+//     initConfigs();
+//     int clientConnection;
+//     char *status = malloc(16);
+    
+//     if(argc != 5) {
+//         perror("Unable to make request with command line arguments.\n");
+//         return -1;
+//     }
+//     else{   // Retrieve request information from command line.
+//         requestInfo.port = atoi(argv[2]);
+//         strcpy(requestInfo.hostName, argv[1]);
+//         strcpy(requestInfo.secretKey, argv[3]);
+//         strcpy(requestInfo.newKey, argv[4]);
+//         *requestInfo.requestType = (unsigned short int)0;
+//     }
+
+    
+//     //Close(clientConnection);
+//     return 0;
+// }
