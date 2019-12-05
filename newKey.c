@@ -20,9 +20,6 @@ struct requestConfig {
 
 
 int main(int argc, char *argv[]) {
-    initConfigs();
-    int clientConnection;
-    char *status = malloc(16);
     
     if(argc != 5) {
         perror("Unable to make request with command line arguments.\n");

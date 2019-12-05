@@ -1,14 +1,13 @@
 CFLAGS = -Wall -g
-LDLIBS = -lpthread
 
 SERVER = filed
-CLIENTS = newKey fileGet fileDigest fileRun
+CLIENTS = newKey fileGet fileDigest
 
 all: $(SERVER) $(CLIENTS)
 
 .PHONY: clean
 clean:
-	/bin/rm -rf *.o filed newKey fileGet fileDigest fileRun
+	/bin/rm -rf *.o filed newKey fileGet fileDigest
 
 zip:
 	zip project5.zip *.c README
