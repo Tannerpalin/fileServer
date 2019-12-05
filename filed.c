@@ -67,23 +67,26 @@ int main(int argc, char *argv[]) {
         printf("port: %d\n", configs.port);
         
         printf("Connected to: %s from: %s\n", host->h_name, homeAddress);
-        rio_t secretRio;
-        char bufferIn[12];
+        
+        char *bufferIn = malloc(6);
         size_t p;
-        Rio_readinitb(&secretRio, connector);
+        //Rio_readinitb(&secretRio, connector);
        
-
-        p = Rio_readnb(&secretRio, bufferIn, 12);
+        size_t q = 6;
+        p = Rio_readn(connector, bufferIn, q);
         printf("Number of bytes read: %d\n", (int)p);
         printf("server secret key: %d\n", (unsigned int)configs.secretKey);
         
-        char keyIn[4];
-        char typeReq[2];
-        printf("Buffer in: %.24x\n", *bufferIn);
-        memcpy(keyIn, bufferIn, 4);
-        memcpy(typeReq, bufferIn + 4, 2);
-        printf("keyIn: %.8x\n", *keyIn);
-        printf("Request In: %.4x\n", *typeReq);
+        char *keyIn = malloc(sizeof(int));
+        char *typeReq = malloc(2);
+        size_t k = 4;
+        size_t l = 2;
+        printf("Buffer in: %s\n", bufferIn);
+        printf("Buffer atoi: %d\n", atoi(bufferIn));
+        strncpy(keyIn, bufferIn, k);
+        strncpy(typeReq, (bufferIn + 4), l);
+        printf("keyIn: %s\n", keyIn);
+        printf("Request In: %s\n", typeReq);
         Rio_writen(connector,"Suc\n",4);         // Write back to client success/fail.
         
         
