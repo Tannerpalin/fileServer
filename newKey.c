@@ -28,6 +28,15 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+struct clientRequest
+{
+    unsigned int secretKey;
+    unsigned short int requestType;
+    char padding[2];
+    char requestData[100];
+}*clientRequest;
+
+
 int main(int argc, char *argv[])
 {
 
@@ -38,11 +47,13 @@ int main(int argc, char *argv[])
     char s[INET6_ADDRSTRLEN];
         
 
-    if (argc != 3) {
+    if (argc != 5) {
         fprintf(stderr,"Usage: client hostname port\n");
         exit(1);
     }
-
+    clientRequest->requestType = 0;
+    clientRequest->secretKey = atoi(argv[3]);
+    strcpy(clientRequest->requestData,argv[4]);
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -79,7 +90,7 @@ int main(int argc, char *argv[])
     printf("client: connecting to %s\n", s);
 
     freeaddrinfo(servinfo); // all done with this structure
-
+    send(sockfd, clientRequest, sizeof(clientRequest),0 );
     if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
         perror("recv");
         exit(1);
@@ -88,6 +99,7 @@ int main(int argc, char *argv[])
     buf[numbytes] = '\0';
 
     printf("client: received '%s'\n",buf);
+
 
     close(sockfd);
 
