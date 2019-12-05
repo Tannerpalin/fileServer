@@ -10,8 +10,8 @@ These three methods can be found in: `newKey.c`, `fileGet.c`, and `fileDigest.c`
 
 ## Compilation
 Running `make` from the command line will compile the server as well the Client methods.
-Running `make clean` will clean up all resulting executables and object files, as well as the csapp.*
-Running `make zip` will zip all our `.c` files into a `project5.zip` for submission.
+Running `make clean` will clean up all resulting executables and object files.
+Running `make zip` will zip all of our `.c` files into a `project5.zip` for submission.
 
 ## Examples
 A working example can be found in the `exampleServer` folder. Use `localhost` in the command line for your clients connection. The
