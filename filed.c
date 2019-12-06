@@ -142,8 +142,8 @@ int main(int argc, char *argv[])
             printf("Current key: %d\n", serverKey);
             if(requestIn.keyIn != serverKey) {
                 printf("invalid key\n");
-                strcpy(results,"Failure");
-                printf("Here 1\n");
+                requestOut.returnCode = (char)1;
+                send(new_fd, &requestOut, sizeof(requestOut),0);
             }
             else {
             switch (requestIn.requestType) {
@@ -152,7 +152,8 @@ int main(int argc, char *argv[])
                     
                 printf("Trying to update with: %d\n", atoi(requestIn.requestData));
                 serverKey = (unsigned int)atoi(requestIn.requestData);  
-
+                requestOut.returnCode = (char)1;
+                send(new_fd, &requestOut, sizeof(requestOut),0);
                 break;
 
                 default:
@@ -162,9 +163,7 @@ int main(int argc, char *argv[])
                 strcpy(results, "Success");
                 
             }
-            if (send(new_fd, results,8, 0) == -1) {
-                perror("send");
-            }
+            
             //if (send(new_fd, "Hello, world!", 13, 0) == -1)
             //    perror("send");
             printf("Here 2\n");
