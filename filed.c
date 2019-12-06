@@ -151,11 +151,11 @@ int main(int argc, char *argv[])
                 case 0:
                 printf("Trying to update with: %d\n", atoi(requestIn.requestData));
                 serverKey = (unsigned int)atoi(requestIn.requestData);  
-                requestOut.returnCode = (char)1;
+                requestOut.returnCode = (char)0;
                 send(new_fd, &requestOut, sizeof(requestOut),0);
                 break;
                 case 1:
-                
+
                 break;
 
                 default:
