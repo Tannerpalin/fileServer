@@ -136,7 +136,9 @@ int main(int argc, char *argv[])
             printf("Current key: %d\n", (unsigned)atoi(serverKey));
             if(requestIn.keyIn != (unsigned int)atoi(serverKey)) {
                 printf("invalid key\n");
-                
+                if (send(new_fd, "Failure",8, 0) == -1) {
+                        perror("send");
+                    }
                 close(new_fd);
                 exit(0);
             }
@@ -157,8 +159,7 @@ int main(int argc, char *argv[])
                 break;
 
                 default:
-                    if(send(new_fd,"Failure",8, 0) == -1)
-                        perror("send");
+                    
                 break;
             }
 

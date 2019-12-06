@@ -40,7 +40,7 @@ struct clientRequest
 int main(int argc, char *argv[])
 {
 
-    int sockfd, numbytes;  
+    int sockfd;  
     char buf[MAXDATASIZE];
     struct addrinfo hints, *servinfo, *p;
     int rv;
@@ -101,12 +101,8 @@ int main(int argc, char *argv[])
 
     freeaddrinfo(servinfo); // all done with this structure
     write(sockfd, &clientRequest, sizeof(clientRequest));
-    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-        perror("recv");
-        exit(1);
-    }
+    recv(sockfd, buf, MAXDATASIZE-1, 0);
 
-    buf[numbytes] = '\0';
 
     printf("client: received '%s'\n",buf);
 
