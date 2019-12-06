@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     //
     if (argc != 5) {
         fprintf(stderr,"Usage: client hostname port secretKey newKey\n");
-        exit(1);
+        return -1;
     }
     // Populating newKey request struct with proper information.
     clientRequest.requestType = 0;
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     // Populate connection struct based on command line input.
     if ((rv = getaddrinfo(argv[1], argv[2], &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-        return 1;
+        return -1;
     }
 
     // loop through linked list of results and connect to the first acceptable result.
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 
     if (p == NULL) { // Error checking for connection.
         fprintf(stderr, "client: failed to connect\n");
-        return 2;
+        return -1;
     }
 
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
