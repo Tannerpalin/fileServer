@@ -65,7 +65,6 @@ int main(int argc, char *argv[])
         exit(1);
     }
     serverKey = (unsigned int)atoi(argv[2]);
-    printf("Starting secret key: %d\n", serverKey);
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -118,12 +117,10 @@ int main(int argc, char *argv[])
         perror("sigaction");
         exit(1);
     }
-
-    printf("server: waiting for connections...\n");
     
     while(1) {  // main accept() loop
         char results[8];
-        
+        char typeOf[16];
         sin_size = sizeof(their_addr);
         //close(new_fd);
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
@@ -135,21 +132,33 @@ int main(int argc, char *argv[])
         inet_ntop(their_addr.ss_family,
             get_in_addr((struct sockaddr *)&their_addr),
             s, sizeof s);
-        printf("server: got connection from %s\n", s);
-
             
             recv(new_fd, &requestIn, sizeof(requestIn), 0);
-            printf("Current key: %d\n", serverKey);
             if(requestIn.keyIn != serverKey) {
-                printf("invalid key\n");
+                strcpy(results,"Failure");
                 requestOut.returnCode = (char)-1;
                 send(new_fd, &requestOut, sizeof(requestOut),0);
+                switch (requestIn.requestType) {
+                    case 0:
+                    strcpy(typeOf,"newKey");
+                    break;
+                    case 1:
+                    strcpy(typeOf,"fileGet");
+                    break;
+                    case 2:
+                    strcpy(typeOf,"fileDigest");
+                    break;
+                    case 3:
+                    strcpy(typeOf,"fileRun");
+                    break;
+                }
             }
             else {
             switch (requestIn.requestType) {
                 
+
                 case 0:
-                printf("Trying to update with: %d\n", atoi(requestIn.requestData));
+                strcpy(typeOf, "newKey");
                 serverKey = (unsigned int)atoi(requestIn.requestData);  
                 requestOut.returnCode = (char)0;
                 send(new_fd, &requestOut, sizeof(requestOut),0);
@@ -168,11 +177,17 @@ int main(int argc, char *argv[])
             
             //if (send(new_fd, "Hello, world!", 13, 0) == -1)
             //    perror("send");
-            printf("Here 2\n");
+//         Secret key = 1411223
+//   Request type = newKey
+//   Detail = 1226631232
+//   Completion = success 
+//   -------------------------- 
             
-            
-        
-        printf("Here 3\n");
+        printf("Secret key = %d\n", requestIn.keyIn);
+        printf("Request type = %s\n", typeOf);
+        printf("Detail = %s\n", requestIn.requestData);
+        printf("Completion = %s\n", results);
+        printf("-----------------------\n");
         close(new_fd);  // parent doesn't need this
         
         
