@@ -36,12 +36,18 @@ struct clientRequest
     char requestData[100];
 }clientRequest;
 
+struct serverReturn {
+    char returnCode;
+    char padOut[3];
+    unsigned short int length;
+    char fileData[100];
+}serverReturn;
 
 int main(int argc, char *argv[])
 {
 
     int sockfd;  
-    char buf[MAXDATASIZE];
+    // char buf[MAXDATASIZE];
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
@@ -101,10 +107,10 @@ int main(int argc, char *argv[])
 
     freeaddrinfo(servinfo); // all done with this structure
     write(sockfd, &clientRequest, sizeof(clientRequest));
-    recv(sockfd, buf, MAXDATASIZE-1, 0);
+    recv(sockfd, &serverReturn, sizeof(serverReturn), 0);
 
 
-    printf("client: received '%s'\n",buf);
+    printf("client: received '%d'\n",serverReturn.returnCode);
 
 
     close(sockfd);
