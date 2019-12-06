@@ -108,6 +108,20 @@ int main(int argc, char *argv[])
     freeaddrinfo(servinfo); // all done with this structure
     write(sockfd, &clientRequest, sizeof(clientRequest));
     recv(sockfd, &serverReturn, sizeof(serverReturn), 0);
+    switch (serverReturn.returnCode)
+    {
+    case 0:
+        printf("success");
+        break;
+    case -1:
+        printf("failure");
+        break;
+    
+    default:
+
+        break;
+    }
+    
 
 
     printf("client: received '%d'\n",serverReturn.returnCode);
