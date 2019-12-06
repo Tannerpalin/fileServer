@@ -20,6 +20,13 @@ struct requestIn {
     char requestData[100];
 }requestIn;
 
+struct requestOut {
+    char returnCode;
+    char padOut[3];
+    unsigned short int length;
+    char fileData[100];
+}requestOut;
+
 void sigchld_handler(int s)
 {
     // waitpid() might overwrite errno, so we save and restore it:
@@ -144,7 +151,7 @@ int main(int argc, char *argv[])
                 case 0:
                     
                 printf("Trying to update with: %d\n", atoi(requestIn.requestData));
-                serverKey = atoi(requestIn.requestData);  
+                serverKey = (unsigned int)atoi(requestIn.requestData);  
 
                 break;
 
