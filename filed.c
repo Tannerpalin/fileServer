@@ -51,12 +51,13 @@ int main(int argc, char *argv[])
     int yes=1;
     char s[INET6_ADDRSTRLEN];
     int rv;
-    
-    if (argc != 2) {    // ./filed port
+    char *serverKey = malloc(sizeof(unsigned int));
+    if (argc != 3) {    // ./filed port
         fprintf(stderr,"Usage: ./filed port\n");
         exit(1);
     }
-
+    memcpy(serverKey, argv[2], strlen(argv[2]));
+    printf("Starting secret key: %d\n", (unsigned int)atoi(serverKey));
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -128,9 +129,27 @@ int main(int argc, char *argv[])
         if (!fork()) { // this is the child process
             close(sockfd); // child doesn't need the listener
             recv(new_fd, &requestIn, sizeof(requestIn), 0);
-            printf("secretKey: %s\n", requestIn.requestData);
-            if (send(new_fd, "Hello, world!", 13, 0) == -1)
-                perror("send");
+            if(requestIn.keyIn != (unsigned int)atoi(serverKey)) {
+                printf("invalid key\n");
+                close(new_fd);
+                exit(0);
+            }
+            switch (requestIn.requestType) {
+                
+                case 0:
+                    sprintf(serverKey, "%d", requestIn.requestType);
+                    if (send(new_fd, "Success",8, 0) == -1)
+                        perror("send");
+                break;
+
+                default:
+                    if(send(new_fd,"Failure",8, 0) == -1)
+                        perror("send");
+                break;
+            }
+
+            //if (send(new_fd, "Hello, world!", 13, 0) == -1)
+            //    perror("send");
             close(new_fd);
             exit(0);
         }
