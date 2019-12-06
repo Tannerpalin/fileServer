@@ -38,7 +38,7 @@ void sigchld_handler(int s)
 }
 
 
-// get sockaddr, IPv4 or IPv6:
+// get the socket address, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
     if (sa->sa_family == AF_INET) {
@@ -58,12 +58,11 @@ int main(int argc, char *argv[])
     socklen_t sin_size;
     struct sigaction sa;
     int yes=1;
-    char s[INET6_ADDRSTRLEN];
     int rv;
     unsigned int serverKey;
 
     if (argc != 3) {    // ./filed port
-        fprintf(stderr,"Usage: ./filed port\n");
+        fprintf(stderr,"Usage: ./filed port secretKey\n");
         exit(1);
     }
     serverKey = (unsigned int)atoi(argv[2]);
@@ -120,7 +119,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
     
-    while(1) {  // main accept() loop
+    while(1) {  // main accepting loop.
         char results[8];
         char typeOf[16];
         sin_size = sizeof(their_addr);
@@ -131,10 +130,6 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        inet_ntop(their_addr.ss_family,
-            get_in_addr((struct sockaddr *)&their_addr),
-            s, sizeof s);
-            
             recv(new_fd, &requestIn, sizeof(requestIn), 0);
             if(requestIn.keyIn != serverKey) {
                 strcpy(results,"Failure");

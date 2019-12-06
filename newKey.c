@@ -1,5 +1,5 @@
 /*
-** client.c -- a stream socket client demo
+** newKey.c -- update the secret key of your server.
 */
 
 #include <stdio.h>
@@ -49,9 +49,9 @@ int main(int argc, char *argv[])
     int rv;
     char s[INET6_ADDRSTRLEN];
         
-
+    //
     if (argc != 5) {
-        fprintf(stderr,"Usage: client hostname port\n");
+        fprintf(stderr,"Usage: client hostname port secretKey newKey\n");
         exit(1);
     }
     // Populating newKey request struct with proper information.
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
         }
     
     strcpy(clientRequest.requestData,argv[4]);
-    memset(&hints, 0, sizeof hints);
+    memset(&hints, 0, sizeof hints );
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
