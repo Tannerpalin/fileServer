@@ -52,6 +52,9 @@ int main(int argc, char *argv[])
     char s[INET6_ADDRSTRLEN];
     int rv;
     char *serverKey = malloc(sizeof(unsigned int));
+
+    int fd[2]; // Pipe to update serverKey.
+    pipe(fd);
     if (argc != 3) {    // ./filed port
         fprintf(stderr,"Usage: ./filed port\n");
         exit(1);
@@ -127,19 +130,30 @@ int main(int argc, char *argv[])
         printf("server: got connection from %s\n", s);
 
         if (!fork()) { // this is the child process
+            close(fd[0]); // Close reading end of pipe.
             close(sockfd); // child doesn't need the listener
             recv(new_fd, &requestIn, sizeof(requestIn), 0);
+            printf("Current key: %d\n", (unsigned)atoi(serverKey));
             if(requestIn.keyIn != (unsigned int)atoi(serverKey)) {
                 printf("invalid key\n");
+                
                 close(new_fd);
                 exit(0);
             }
             switch (requestIn.requestType) {
                 
                 case 0:
-                    sprintf(serverKey, "%d", requestIn.requestType);
-                    if (send(new_fd, "Success",8, 0) == -1)
+                    
+                    printf("Trying to update with: %d\n", atoi(requestIn.requestData));
+                    int *byteSize = malloc(sizeof(int));
+                    *byteSize = strlen(requestIn.requestData);
+                    write(fd[1], byteSize, 4);
+                    write(fd[1],requestIn.requestData, strlen(requestIn.requestData));
+                    close(fd[1]);
+                    if (send(new_fd, "Success",8, 0) == -1) {
                         perror("send");
+                    }
+
                 break;
 
                 default:
@@ -154,6 +168,10 @@ int main(int argc, char *argv[])
             exit(0);
         }
         close(new_fd);  // parent doesn't need this
+        int *keySize = malloc(4);
+        read(fd[0], keySize, 4);
+        read(fd[0], serverKey, (int)(*keySize));
+        close(fd[0]);
     }
 
     return 0;
