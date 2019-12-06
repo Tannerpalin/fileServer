@@ -18,7 +18,7 @@ struct requestIn {
     unsigned short int requestType;
     char padding[2];
     char requestData[100];
-}*requestIn;
+}requestIn;
 
 void sigchld_handler(int s)
 {
@@ -127,7 +127,8 @@ int main(int argc, char *argv[])
 
         if (!fork()) { // this is the child process
             close(sockfd); // child doesn't need the listener
-            recv(new_fd, requestIn, sizeof(requestIn), 0);
+            recv(new_fd, &requestIn, sizeof(requestIn), 0);
+            printf("secretKey: %s\n", requestIn.requestData);
             if (send(new_fd, "Hello, world!", 13, 0) == -1)
                 perror("send");
             close(new_fd);
