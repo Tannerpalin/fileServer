@@ -14,10 +14,6 @@
 #include <ctype.h>
 #include <arpa/inet.h>
 
-#define PORT "3490" // the port client will be connecting to 
-
-#define MAXDATASIZE 100 // max number of bytes we can get at once 
-
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -34,20 +30,21 @@ struct clientRequest
     unsigned short int requestType;
     char padding[2];
     char requestData[100];
-}clientRequest;
+};
 
 struct serverReturn {
     char returnCode;
     char padOut[3];
     unsigned short int length;
     char fileData[100];
-}serverReturn;
+};
 
 int main(int argc, char *argv[])
 {
-
+    struct clientRequest clientRequest;
+    struct serverReturn serverReturn;
     int sockfd;  
-    // char buf[MAXDATASIZE];
+    
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
@@ -102,8 +99,7 @@ int main(int argc, char *argv[])
     }
 
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
-            s, sizeof s);
-    printf("client: connecting to %s\n", s);
+            s, sizeof s);   // Storing address from socket if needed.
 
     freeaddrinfo(servinfo); // all done with this structure
     write(sockfd, &clientRequest, sizeof(clientRequest));
@@ -121,11 +117,6 @@ int main(int argc, char *argv[])
 
         break;
     }
-    
-
-
-    
-
 
     close(sockfd);
 
