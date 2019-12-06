@@ -111,10 +111,10 @@ int main(int argc, char *argv[])
     switch (serverReturn.returnCode)
     {
     case 0:
-        printf("success");
+        printf("success\n");
         break;
     case -1:
-        printf("failure");
+        printf("failure\n");
         break;
     
     default:
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
     
 
 
-    printf("client: received '%d'\n",serverReturn.returnCode);
+    
 
 
     close(sockfd);
