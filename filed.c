@@ -115,9 +115,12 @@ int main(int argc, char *argv[])
     }
 
     printf("server: waiting for connections...\n");
-
+    
     while(1) {  // main accept() loop
-        sin_size = sizeof their_addr;
+        char results[8];
+        
+        sin_size = sizeof(their_addr);
+        //close(new_fd);
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
         if (new_fd == -1) {
             perror("accept");
@@ -130,18 +133,16 @@ int main(int argc, char *argv[])
         printf("server: got connection from %s\n", s);
 
         if (!fork()) { // this is the child process
-            close(fd[0]); // Close reading end of pipe.
             close(sockfd); // child doesn't need the listener
+            close(fd[0]); // Close reading end of pipe.
             recv(new_fd, &requestIn, sizeof(requestIn), 0);
             printf("Current key: %d\n", (unsigned)atoi(serverKey));
             if(requestIn.keyIn != (unsigned int)atoi(serverKey)) {
                 printf("invalid key\n");
-                if (send(new_fd, "Failure",8, 0) == -1) {
-                        perror("send");
-                    }
-                close(new_fd);
-                exit(0);
+                strcpy(results,"Failure");
+                printf("Here 1\n");
             }
+            else {
             switch (requestIn.requestType) {
                 
                 case 0:
@@ -152,9 +153,7 @@ int main(int argc, char *argv[])
                     write(fd[1], byteSize, 4);
                     write(fd[1],requestIn.requestData, strlen(requestIn.requestData));
                     close(fd[1]);
-                    if (send(new_fd, "Success",8, 0) == -1) {
-                        perror("send");
-                    }
+                    
 
                 break;
 
@@ -162,12 +161,18 @@ int main(int argc, char *argv[])
                     
                 break;
             }
-
+            }
+            strcpy(results, "Success");
+            if (send(new_fd, results,8, 0) == -1) {
+                        perror("send");
+                    }
             //if (send(new_fd, "Hello, world!", 13, 0) == -1)
             //    perror("send");
+            printf("Here 2\n");
             close(new_fd);
             exit(0);
         }
+        printf("Here 3\n");
         close(new_fd);  // parent doesn't need this
         int *keySize = malloc(4);
         read(fd[0], keySize, 4);
