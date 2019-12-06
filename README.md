@@ -1,5 +1,6 @@
 # fileServer
 Project 5, CS270: Systems Programming with Dr.Raphael Finkel, a file server written in C.
+Authors: Tanner Palin and Will Shapiro.
 
 ## Server
 Our actual server is found within the `filed.c` file.
