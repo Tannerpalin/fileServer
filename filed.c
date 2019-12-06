@@ -18,14 +18,14 @@ struct requestIn {
     unsigned short int requestType;
     char padding[2];
     char requestData[100];
-}requestIn;
+};
 
 struct requestOut {
     char returnCode;
     char padOut[3];
     unsigned short int length;
     char fileData[100];
-}requestOut;
+};
 
 void sigchld_handler(int s)
 {
@@ -50,6 +50,8 @@ void *get_in_addr(struct sockaddr *sa)
 
 int main(int argc, char *argv[])
 {
+    struct requestIn requestIn;
+    struct requestOut requestOut;
     int sockfd, new_fd;  // listen on sock_fd, new connection on new_fd
     struct addrinfo hints, *servinfo, *p;
     struct sockaddr_storage their_addr; // connector's address information
@@ -122,7 +124,7 @@ int main(int argc, char *argv[])
         char results[8];
         char typeOf[16];
         sin_size = sizeof(their_addr);
-        //close(new_fd);
+        
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
         if (new_fd == -1) {
             perror("accept");
@@ -156,15 +158,30 @@ int main(int argc, char *argv[])
             else {
             switch (requestIn.requestType) {
                 
-
                 case 0:
                 strcpy(typeOf, "newKey");
                 serverKey = (unsigned int)atoi(requestIn.requestData);  
                 requestOut.returnCode = (char)0;
                 send(new_fd, &requestOut, sizeof(requestOut),0);
                 break;
-                case 1:
 
+                case 1:
+                strcpy(typeOf, "fileGet");
+                requestOut.returnCode = (char)-1; // Haven't implemented yet so fail.
+                send(new_fd, &requestOut, sizeof(requestOut),0);
+               
+                break;
+
+                case 2:
+                strcpy(typeOf, "fileDigest");
+                requestOut.returnCode = (char)-1; // Haven't implemented yet so fail.
+                send(new_fd, &requestOut, sizeof(requestOut),0);
+                break;
+
+                case 3:
+                strcpy(typeOf, "fileRun");
+                requestOut.returnCode = (char)-1; // Haven't implemented yet so fail.
+                send(new_fd, &requestOut, sizeof(requestOut),0);
                 break;
 
                 default:
@@ -174,22 +191,12 @@ int main(int argc, char *argv[])
                 strcpy(results, "Success");
                 
             }
-            
-            //if (send(new_fd, "Hello, world!", 13, 0) == -1)
-            //    perror("send");
-//         Secret key = 1411223
-//   Request type = newKey
-//   Detail = 1226631232
-//   Completion = success 
-//   -------------------------- 
-            
         printf("Secret key = %d\n", requestIn.keyIn);
         printf("Request type = %s\n", typeOf);
         printf("Detail = %s\n", requestIn.requestData);
         printf("Completion = %s\n", results);
         printf("-----------------------\n");
         close(new_fd);  // parent doesn't need this
-        
         
     }
 
