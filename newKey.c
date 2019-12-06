@@ -54,9 +54,11 @@ int main(int argc, char *argv[])
         fprintf(stderr,"Usage: client hostname port\n");
         exit(1);
     }
+    // Populating newKey request struct with proper information.
     clientRequest.requestType = 0;
     clientRequest.secretKey = atoi(argv[3]);
-    for (int i = 0; i < strlen(argv[3]); i++)
+    // Ensure keys are numbers before storing into request structure.
+    for (int i = 0; i < strlen(argv[3]); i++) 
     {
         if(isdigit(argv[3][i])==0){fprintf(stderr,"invalid\n"); exit(EXIT_FAILURE);}  
     }
@@ -65,19 +67,21 @@ int main(int argc, char *argv[])
             if(isdigit(argv[4][j])==0){fprintf(stderr,"invalid\n");exit(EXIT_FAILURE);}
         }
     
-    
     strcpy(clientRequest.requestData,argv[4]);
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
 
+    // Populate connection struct based on command line input.
     if ((rv = getaddrinfo(argv[1], argv[2], &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
 
-    // loop through all the results and connect to the first we can
+    // loop through linked list of results and connect to the first acceptable result.
     for(p = servinfo; p != NULL; p = p->ai_next) {
+
+        // If not acceptable connection, loop again.
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                 p->ai_protocol)) == -1) {
             perror("client: socket");
@@ -93,7 +97,7 @@ int main(int argc, char *argv[])
         break;
     }
 
-    if (p == NULL) {
+    if (p == NULL) { // Error checking for connection.
         fprintf(stderr, "client: failed to connect\n");
         return 2;
     }
@@ -104,7 +108,7 @@ int main(int argc, char *argv[])
     freeaddrinfo(servinfo); // all done with this structure
     write(sockfd, &clientRequest, sizeof(clientRequest));
     recv(sockfd, &serverReturn, sizeof(serverReturn), 0);
-    switch (serverReturn.returnCode)
+    switch (serverReturn.returnCode)    // Print status of request.
     {
     case 0:
         printf("success\n");
@@ -114,57 +118,11 @@ int main(int argc, char *argv[])
         break;
     
     default:
-
-        break;
+        // Do not want to get stuck in case statement for random edge case.
+    break;
     }
 
-    close(sockfd);
+    close(sockfd); // Close connection upon exit.
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// struct requestConfig {
-//     unsigned short port;            // Port server is listening to.
-//     char *secretKey;         // Current secret key server is using.
-//     char *newKey;            // New secret key for server to use.
-//     char hostName[40];   // Host name of server.
-//     char *requestType;
-// } requestInfo;
-
-
-// int main(int argc, char *argv[]) {
-//     initConfigs();
-//     int clientConnection;
-//     char *status = malloc(16);
-    
-//     if(argc != 5) {
-//         perror("Unable to make request with command line arguments.\n");
-//         return -1;
-//     }
-//     else{   // Retrieve request information from command line.
-//         requestInfo.port = atoi(argv[2]);
-//         strcpy(requestInfo.hostName, argv[1]);
-//         strcpy(requestInfo.secretKey, argv[3]);
-//         strcpy(requestInfo.newKey, argv[4]);
-//         *requestInfo.requestType = (unsigned short int)0;
-//     }
-
-    
-//     //Close(clientConnection);
-//     return 0;
-// }
