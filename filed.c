@@ -51,14 +51,14 @@ int main(int argc, char *argv[])
     int yes=1;
     char s[INET6_ADDRSTRLEN];
     int rv;
-    char *serverKey = malloc(sizeof(unsigned int));
+    unsigned int serverKey;
 
     if (argc != 3) {    // ./filed port
         fprintf(stderr,"Usage: ./filed port\n");
         exit(1);
     }
-    memcpy(serverKey, argv[2], strlen(argv[2]));
-    printf("Starting secret key: %d\n", (unsigned int)atoi(serverKey));
+    serverKey = (unsigned int)atoi(argv[2]);
+    printf("Starting secret key: %d\n", serverKey);
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -132,8 +132,8 @@ int main(int argc, char *argv[])
 
             
             recv(new_fd, &requestIn, sizeof(requestIn), 0);
-            printf("Current key: %d\n", (unsigned)atoi(serverKey));
-            if(requestIn.keyIn != (unsigned int)atoi(serverKey)) {
+            printf("Current key: %d\n", serverKey);
+            if(requestIn.keyIn != serverKey) {
                 printf("invalid key\n");
                 strcpy(results,"Failure");
                 printf("Here 1\n");
@@ -144,9 +144,7 @@ int main(int argc, char *argv[])
                 case 0:
                     
                 printf("Trying to update with: %d\n", atoi(requestIn.requestData));
-                *serverKey = requestIn.keyIn;
-                    
-                    
+                serverKey = atoi(requestIn.requestData);  
 
                 break;
 
@@ -154,10 +152,11 @@ int main(int argc, char *argv[])
                     
                 break;
             }
+                strcpy(results, "Success");
+                
             }
-            strcpy(results, "Success");
             if (send(new_fd, results,8, 0) == -1) {
-                        perror("send");
+                perror("send");
             }
             //if (send(new_fd, "Hello, world!", 13, 0) == -1)
             //    perror("send");
