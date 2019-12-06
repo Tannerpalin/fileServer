@@ -53,6 +53,16 @@ int main(int argc, char *argv[])
     }
     clientRequest.requestType = 0;
     clientRequest.secretKey = atoi(argv[3]);
+    for (int i = 0; i < strlen(argv[3]); i++)
+    {
+        if(isdigit(argv[3][i])==0){fprintf(stderr,"invalid\n"); exit(EXIT_FAILURE);}  
+    }
+    for (int j = 0; j < strlen(argv[4]); j++)
+        {
+            if(isdigit(argv[4][j])==0){fprintf(stderr,"invalid\n");exit(EXIT_FAILURE);}
+        }
+    
+    
     strcpy(clientRequest.requestData,argv[4]);
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
