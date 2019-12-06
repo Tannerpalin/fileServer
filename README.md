@@ -1,5 +1,5 @@
 # fileServer
-Project 5, CS270, a file server written in C.
+Project 5, CS270: Systems Programming with Dr.Raphael Finkel, a file server written in C.
 
 ## Server
 Our actual server is found within the `filed.c` file.
