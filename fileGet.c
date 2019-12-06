@@ -104,11 +104,13 @@ int main(int argc, char *argv[])
     freeaddrinfo(servinfo); // all done with this structure
     write(sockfd, &clientRequest, sizeof(clientRequest));
     recv(sockfd, &serverReturn, sizeof(serverReturn), 0);
-    switch (serverReturn.returnCode)    // Print status of request.
+    switch (serverReturn.returnCode)    // Print file data or failure of request.
     {
     case 0:
-
-        printf("%.*s\n", (int)strlen(serverReturn.fileData),serverReturn.fileData);
+        for(int j=0; j < (int)strlen(serverReturn.fileData); j++) {
+            printf("%02x", serverReturn.fileData[j]);
+        }
+        printf("\n");
         break;
     case -1:
         printf("failure\n");

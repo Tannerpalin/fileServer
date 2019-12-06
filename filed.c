@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #define BACKL 10   // how many pending connections queue will hold
 
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
     struct sockaddr_storage their_addr; // connector's address information
     socklen_t sin_size;
     struct sigaction sa;
+    struct stat st;
     int yes=1;
     int rv;
     unsigned int serverKey;
@@ -165,16 +167,18 @@ int main(int argc, char *argv[])
                 strcpy(typeOf, "fileGet");
                 FILE *filePtr;
                 long fileLength;
-                filePtr = fopen(requestIn.requestData, "rb");
+                filePtr = fopen(requestIn.requestData, "r");
                 if(filePtr == 0) {
                     strcpy(results,"Failure");
                     requestOut.returnCode = (char)-1;
                     send(new_fd, &requestOut, sizeof(requestOut),0);
                     break;
                 }
-                fseek(filePtr, 0, SEEK_END);
-                fileLength = ftell(filePtr);
-                rewind(filePtr);
+                int fdSize;
+                fdSize = fileno(filePtr);
+                fstat(fdSize, &st);
+                fileLength = (int)st.st_size;
+                
                 if(fileLength > 100) {
                     requestOut.length = 100;
                     fread(requestOut.fileData, 100, 1, filePtr);
