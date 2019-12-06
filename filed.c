@@ -11,7 +11,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#define BACKLOG 10   // how many pending connections queue will hold
+#define BACKL 10   // how many pending connections queue will hold
 
 struct requestIn {
     unsigned int keyIn;
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     int rv;
     unsigned int serverKey;
 
-    if (argc != 3) {    // ./filed port
+    if (argc != 3) {    // ./filed port secretKey
         fprintf(stderr,"Usage: ./filed port secretKey\n");
         exit(1);
     }
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    if (listen(sockfd, BACKLOG) == -1) {
+    if (listen(sockfd, BACKL) == -1) {
         perror("listen");
         exit(1);
     }
@@ -157,12 +157,35 @@ int main(int argc, char *argv[])
                 strcpy(typeOf, "newKey");
                 serverKey = (unsigned int)atoi(requestIn.requestData);  
                 requestOut.returnCode = (char)0;
+                strcpy(results, "Success");
                 send(new_fd, &requestOut, sizeof(requestOut),0);
                 break;
 
                 case 1:
                 strcpy(typeOf, "fileGet");
-                requestOut.returnCode = (char)-1; // Haven't implemented yet so fail.
+                FILE *filePtr;
+                long fileLength;
+                filePtr = fopen(requestIn.requestData, "rb");
+                if(filePtr == 0) {
+                    strcpy(results,"Failure");
+                    requestOut.returnCode = (char)-1;
+                    send(new_fd, &requestOut, sizeof(requestOut),0);
+                    break;
+                }
+                fseek(filePtr, 0, SEEK_END);
+                fileLength = ftell(filePtr);
+                rewind(filePtr);
+                if(fileLength > 100) {
+                    requestOut.length = 100;
+                    fread(requestOut.fileData, 100, 1, filePtr);
+                    requestOut.returnCode = (char)0;
+                }
+                else {
+                    requestOut.length = (unsigned short int)fileLength;
+                    fread(requestOut.fileData, fileLength, 1, filePtr);
+                    requestOut.returnCode = (char)0;
+                }
+                strcpy(results, "Success");
                 send(new_fd, &requestOut, sizeof(requestOut),0);
                
                 break;
@@ -183,7 +206,7 @@ int main(int argc, char *argv[])
                     
                 break;
             }
-                strcpy(results, "Success");
+                
                 
             }
         printf("Secret key = %d\n", requestIn.keyIn);

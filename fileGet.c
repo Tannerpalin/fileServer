@@ -107,7 +107,8 @@ int main(int argc, char *argv[])
     switch (serverReturn.returnCode)    // Print status of request.
     {
     case 0:
-        printf("success\n");
+
+        printf("%.*s\n", (int)strlen(serverReturn.fileData),serverReturn.fileData);
         break;
     case -1:
         printf("failure\n");
