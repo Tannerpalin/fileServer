@@ -206,16 +206,21 @@ int main(int argc, char *argv[])
                     send(new_fd, &requestOut, sizeof(requestOut),0);
                     break;
                 }
+                printf("file: %s\n", requestIn.requestData);
                 if (!fork()) { // this is the child process
+                    printf("in fork\n");
                     close(fdPipe[0]);   // Close the reading end of the pipe.
-                    dup2(fdPipe[1], 1);
+                    dup2(fdPipe[1], STDOUT_FILENO);
+                    // SOMETHING WEIRD IS GOING ON HERE.
                     if(execl("/usr/bin/sha256sum", requestIn.requestData, (char*)NULL) == -1) {
                         strcpy(results,"Failure");
                         requestOut.returnCode = (char)-1;
                     }
                     exit(0);
                 }
-                read(fdPipe[0], requestOut.fileData, 100);
+                if(read(fdPipe[0], requestOut.fileData, 100) == -1) {
+                    printf("Read error from pipe!\n");
+                }
                 close(fdPipe[0]);
                 strcpy(results,"Success");
                 requestOut.returnCode = (char)0;
