@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <sys/stat.h>
 
+
 #define BACKL 10   // how many pending connections queue will hold
 
 struct requestIn {
@@ -125,7 +126,9 @@ int main(int argc, char *argv[])
         char results[8];
         char typeOf[16];
         sin_size = sizeof(their_addr);
-        
+        int fdPipe[2];      // Pipe for cryptographic digest output.
+        pipe(fdPipe);
+        close(fdPipe[1]);
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
         if (new_fd == -1) {
             perror("accept");
@@ -191,19 +194,36 @@ int main(int argc, char *argv[])
                 }
                 strcpy(results, "Success");
                 send(new_fd, &requestOut, sizeof(requestOut),0);
-               
                 break;
 
                 case 2:
                 strcpy(typeOf, "fileDigest");
-                requestOut.returnCode = (char)-1; // Haven't implemented yet so fail.
+                FILE *filePtr2;
+                filePtr2 = fopen(requestIn.requestData, "r");
+                if(filePtr2 == 0) {
+                    strcpy(results,"Failure");
+                    requestOut.returnCode = (char)-1;
+                    send(new_fd, &requestOut, sizeof(requestOut),0);
+                    break;
+                }
+                if (!fork()) { // this is the child process
+                    close(fdPipe[0]);   // Close the reading end of the pipe.
+                    dup2(fdPipe[1], 1);
+                    if(execl("/usr/bin/sha256sum", requestIn.requestData, (char*)NULL) == -1) {
+                        strcpy(results,"Failure");
+                        requestOut.returnCode = (char)-1;
+                    }
+                    exit(0);
+                }
+                read(fdPipe[0], requestOut.fileData, 100);
+                close(fdPipe[0]);
+                strcpy(results,"Success");
+                requestOut.returnCode = (char)0;
                 send(new_fd, &requestOut, sizeof(requestOut),0);
                 break;
 
                 case 3:
-                strcpy(typeOf, "fileRun");
-                requestOut.returnCode = (char)-1; // Haven't implemented yet so fail.
-                send(new_fd, &requestOut, sizeof(requestOut),0);
+                // File Run
                 break;
 
                 default:
