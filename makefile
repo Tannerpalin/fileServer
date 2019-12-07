@@ -1,7 +1,7 @@
 CFLAGS = -Wall -g
 
 SERVER = filed
-CLIENTS = newKey fileGet fileDigest
+CLIENTS = newKey fileGet fileDigest 
 
 all: $(SERVER) $(CLIENTS)
 

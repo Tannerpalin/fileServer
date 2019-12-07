@@ -55,13 +55,31 @@ int main(int argc, char *argv[])
         return -1;
     }
     // Populating fileGet request struct with proper information.
-    clientRequest.requestType = 2;
+    clientRequest.requestType = 3;
     clientRequest.secretKey = atoi(argv[3]);
     // Ensure file name is less than or equal to 100 characters.
     if(strlen(argv[4]) > 100) {
         fprintf(stderr, "File name is more than 100 characters.\n");
         return -1;
     }
+    
+    case "inet":
+        clientRequest.requestData = "/bin/ip address";
+        break;
+    case "hosts":
+    clientRequest.requestData = "/bin/cat /etc/hosts";
+    break;
+    case "service":
+        clientRequest.requestData = "/bin/cat /etc/services";
+        break;
+    case "identity":
+        clientRequest.requestData = "/bin/hostname";
+        break;
+    
+    
+    fprintf(stderr, "Incorrect program name");
+    exit(EXIT_FAILURE);
+        
     
     strcpy(clientRequest.requestData,argv[4]);
     memset(&hints, 0, sizeof hints );
