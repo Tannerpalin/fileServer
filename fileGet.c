@@ -24,7 +24,7 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-struct clientRequest
+struct clientRequest    // Struct for sending information to server.
 {
     unsigned int secretKey;
     unsigned short int requestType;
@@ -32,7 +32,7 @@ struct clientRequest
     char requestData[100];
 };
 
-struct serverReturn {
+struct serverReturn {   // Struct for receiveing information from server after request.
     char returnCode;
     char padOut[3];
     unsigned short int length;

@@ -24,7 +24,7 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-struct clientRequest
+struct clientRequest    // Struct for information to be sent to server.
 {
     unsigned int secretKey;
     unsigned short int requestType;
@@ -32,7 +32,7 @@ struct clientRequest
     char requestData[100];
 };
 
-struct serverReturn {
+struct serverReturn {   // Struct for information received from server after request.
     char returnCode;
     char padOut[3];
     unsigned short int length;
@@ -49,14 +49,13 @@ int main(int argc, char *argv[])
     int rv;
     char s[INET6_ADDRSTRLEN];
         
-    //
+    
     if (argc != 5) {
         fprintf(stderr,"Usage: client hostname port secretKey newKey\n");
         return -1;
     }
     // Populating newKey request struct with proper information.
     clientRequest.requestType = 0;
-    clientRequest.secretKey = atoi(argv[3]);
     // Ensure keys are numbers before storing into request structure.
     for (int i = 0; i < strlen(argv[3]); i++) 
     {
@@ -66,7 +65,7 @@ int main(int argc, char *argv[])
         {
             if(isdigit(argv[4][j])==0){fprintf(stderr,"invalid\n");exit(EXIT_FAILURE);}
         }
-    
+    clientRequest.secretKey = (unsigned int)atoi(argv[3]);
     strcpy(clientRequest.requestData,argv[4]);
     memset(&hints, 0, sizeof hints );
     hints.ai_family = AF_UNSPEC;

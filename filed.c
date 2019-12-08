@@ -13,25 +13,24 @@
 #include <sys/stat.h>
 
 
-#define BACKL 10   // how many pending connections queue will hold
+#define BACKL 50   // Number of pending connections to hold in queue.
 
-struct requestIn {
+struct requestIn {  // Struct for information coming in from client.
     unsigned int keyIn;
     unsigned short int requestType;
     char padding[2];
     char requestData[100];
 };
 
-struct requestOut {
-    char returnCode;            // 
+struct requestOut { // Struct for information going out to client.
+    char returnCode;      
     char padOut[3];
     unsigned short int length;
     char fileData[100];
 };
 
-void sigchld_handler(int s)
+void sigchld_handler(int s) // Handling of signals received by child during execution.
 {
-    // waitpid() might overwrite errno, so we save and restore it:
     int saved_errno = errno;
 
     while(waitpid(-1, NULL, WNOHANG) > 0);
@@ -39,16 +38,6 @@ void sigchld_handler(int s)
     errno = saved_errno;
 }
 
-
-// get the socket address, IPv4 or IPv6:
-void *get_in_addr(struct sockaddr *sa)
-{
-    if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
-    }
-
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}
 
 int main(int argc, char *argv[])
 {
@@ -66,7 +55,7 @@ int main(int argc, char *argv[])
 
     if (argc != 3) {    // ./filed port secretKey
         fprintf(stderr,"Usage: ./filed port secretKey\n");
-        exit(1);
+        return -1;
     }
     serverKey = (unsigned int)atoi(argv[2]);
     memset(&hints, 0, sizeof hints);
@@ -76,10 +65,10 @@ int main(int argc, char *argv[])
 
     if ((rv = getaddrinfo(NULL, argv[1], &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-        return 1;
+        return -1;
     }
 
-    // loop through all the results and bind to the first we can
+    // loop through all the results and bind to the first we can.
     for(p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                 p->ai_protocol)) == -1) {
@@ -105,21 +94,21 @@ int main(int argc, char *argv[])
     freeaddrinfo(servinfo); // all done with this structure
 
     if (p == NULL)  {
-        fprintf(stderr, "server: failed to bind\n");
-        exit(1);
+        fprintf(stderr, "server: failed to set port\n");
+        return -1;
     }
 
     if (listen(sockfd, BACKL) == -1) {
-        perror("listen");
-        exit(1);
+        perror("Could not listen to connection requests.");
+        return -1;
     }
 
-    sa.sa_handler = sigchld_handler; // reap all dead processes
+    sa.sa_handler = sigchld_handler; // reaps all dead processes.
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
     if (sigaction(SIGCHLD, &sa, NULL) == -1) {
         perror("sigaction");
-        exit(1);
+        return -1;
     }
     
     while(1) {  // main accepting loop.
@@ -131,7 +120,7 @@ int main(int argc, char *argv[])
         close(fdPipe[1]);
         new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
         if (new_fd == -1) {
-            perror("accept");
+            perror("failure in accepting request");
             continue;
         }
 
@@ -155,11 +144,10 @@ int main(int argc, char *argv[])
                     break;
                 }
             }
-            else {
+            else {  // If request meets authorization, begin execution of request.
             switch (requestIn.requestType) {
                 
-                case 0:
-                // new key
+                case 0: // New Key
                 strcpy(typeOf, "newKey");
                 serverKey = (unsigned int)atoi(requestIn.requestData);  
                 requestOut.returnCode = (char)0;
@@ -167,8 +155,7 @@ int main(int argc, char *argv[])
                 send(new_fd, &requestOut, sizeof(requestOut),0);
                 break;
 
-                case 1:
-                //File Get
+                case 1: //File Get
                 strcpy(typeOf, "fileGet");
                 FILE *filePtr;
                 long fileLength;
@@ -198,8 +185,7 @@ int main(int argc, char *argv[])
                 send(new_fd, &requestOut, sizeof(requestOut),0);
                 break;
 
-                case 2:
-                // File Digest
+                case 2: // File Digest
                 strcpy(typeOf, "fileDigest");
                 int saveOut;
                 int saveErr;
@@ -217,16 +203,16 @@ int main(int argc, char *argv[])
                 saveErr = dup(2);
                 strcat(systemCall, requestIn.requestData);
                 int pipeFd[2];
-                pipe(pipeFd);
+                pipe(pipeFd);       // Pipe to receive the std output and err from digest.
                 dup2(pipeFd[1], 1);
                 dup2(pipeFd[1], 2);
-                
+                // Using system() instead of the fork() -> exec() solution.
                 system(systemCall);
                 read(pipeFd[0], requestOut.fileData, 100);
-                // Use system() instead of execvp.
+                
                 close(pipeFd[1]);
                 close(pipeFd[0]);
-                dup2(saveErr, 2);
+                dup2(saveErr, 2);      // Restoration of standard output and err
                 dup2(saveOut, 1);
                 close(saveErr);
                 close(saveOut);
@@ -264,16 +250,16 @@ int main(int argc, char *argv[])
                 saveErrRun = dup(2);
                
                 int pipeFdRun[2];
-                pipe(pipeFdRun);
+                pipe(pipeFdRun);        // Piping to receive output from child process.
                 dup2(pipeFdRun[1], 1);
                 dup2(pipeFdRun[1], 2);
                 
-                system(systemCallRun); // Need to error check system call?
-                read(pipeFdRun[0], requestOut.fileData, 100);
+                system(systemCallRun); // TODO: Should probably error check system call.
+                read(pipeFdRun[0], requestOut.fileData, 100);   // Get data from pipe.
                 
                 close(pipeFdRun[1]);
                 close(pipeFdRun[0]);
-                dup2(saveErrRun, 2);
+                dup2(saveErrRun, 2);    // Restoring standard output and error from pipe.
                 dup2(saveOutRun, 1);
                 close(saveErrRun);
                 close(saveOutRun);
@@ -286,15 +272,14 @@ int main(int argc, char *argv[])
                     
                 break;
             }
-                
-                
-            }
+        }
+        // Server-side display of request status.
         printf("Secret key = %d\n", requestIn.keyIn);
         printf("Request type = %s\n", typeOf);
         printf("Detail = %s\n", requestIn.requestData);
         printf("Completion = %s\n", results);
         printf("-----------------------\n");
-        close(new_fd);  // parent doesn't need this
+        close(new_fd);  // Close out the requesting connecting.
         
     }
 

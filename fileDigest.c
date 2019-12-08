@@ -1,5 +1,5 @@
 /*
-** fileDigest.c -- retrieve 100 bytes of a file.
+** fileDigest.c -- retrieve a 100 byte cryptographic digest of a file.
 */
 
 #include <stdio.h>
