@@ -59,7 +59,8 @@ When performing a fileRun request, the execution from the command line should li
     * `inet` runs the following bash command line instruction `/bin/ip address` POSSIBLE BUG ALERT
     * `service` runs the following bash command line instruction `/bin/cat /etc/services` POSSIBLE BUG ALERT
     * `hosts` runs the following bash command line instruction `/bin/cat /etc/hosts` POSSIBLE BUG ALERT
-    * `identity` runs the following bash command line instruction `/bin/hostname` POSSIBLE BUG ALERT<br/>
+    * `identity` runs the following bash command line instruction `/bin/hostname` POSSIBLE BUG ALERT
+    
 Upon success of this request, the client will receive 100 bytes of output from the execution of the run type.
 
 ## Examples
