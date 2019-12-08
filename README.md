@@ -10,6 +10,15 @@ Sources and Credits: We were able to create this server by following an outline 
 ## Server
 Our actual file server is found within the `filed.c` file.<br/>
 Our `main()` within `filed.c` is a little verbose and it would be ideal to seperate the different cases into different procedures. However, due to time-constraints for this project, we let decided that this would be alright for the minimally viable solution.
+### `filed` Usage
+To start the server, you must execute the following bash command line instruction after compilation:
+```bash
+./filed port secretKey
+```
+* Where `port` is the port number that the server will begin listening to.
+* `secretKey` is the secret key (unsigned int) that clients must use to authenticate their request.
+
+The server will then listen to the port and display rudimentary information about the requests that it receives.
 
 ## API Client methods
 We have four different files which will make different requests to our server found in `filed.c`
@@ -35,6 +44,7 @@ When performing a fileGet request, the execution from the command line should li
 * `port` is the port number that the server will be listening to on the machine.
 * `secretKey` is the current secret key (a 32-bit unsigned integer) that the server is using to authenticate requests.<br/>
 * `fileName` is the name of a file (100 character maximum) stored on the server.
+
 Upon success of this request, the client will receive the first 100 bytes of the file stored on the server.
 
 ### `fileDigest` Usage
@@ -46,6 +56,7 @@ When performing a fileDigest request, the execution from the command line should
 * `port` is the port number that the server will be listening to on the machine.
 * `secretKey` is the current secret key (a 32-bit unsigned integer) that the server is using to authenticate requests.<br/>
 * `fileName` is the name of a file (100 character maximum) stored on the server.
+
 Upon success of this request, the client will receive a 100 byte cryptographic digest of the file stored on the server.
 
 ### `fileRun` Usage
