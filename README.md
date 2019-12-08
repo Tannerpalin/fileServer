@@ -8,6 +8,15 @@ Our actual file server is found within the `filed.c` file.
 We have three different files which will make different requests to our server found in `filed.c`
 These three methods can be found in: `newKey.c`, `fileGet.c`, and `fileDigest.c`
 
+### `newKey` Usage
+
+
+### `fileGet` Usage
+
+### `fileDigest` Usage
+
+### `fileRun` Usage
+
 ## Compilation
 Running `make` from the command line will compile the server as well the Client methods.
 Running `make clean` will clean up all resulting executables and object files.
