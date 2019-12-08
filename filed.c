@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
                 
                 strcpy(typeOf, "fileDigest");
                 int saveOut;
+                int saveErr;
                 char systemCall[121];
                 strcpy(systemCall, "/usr/bin/sha256sum ");
                 FILE *filePtr2;
@@ -211,6 +212,7 @@ int main(int argc, char *argv[])
                     break;
                 }
                 saveOut = dup(1);
+                saveErr = dup(2);
                 strcat(systemCall, requestIn.requestData);
                 int pipeFd[2];
                 pipe(pipeFd);
@@ -222,7 +224,9 @@ int main(int argc, char *argv[])
                 // Use system() instead of execvp.
                 close(pipeFd[1]);
                 close(pipeFd[0]);
+                dup2(saveErr, 2);
                 dup2(saveOut, 1);
+                close(saveErr);
                 close(saveOut);
                 strcpy(results,"Success");
                 requestOut.returnCode = (char)0;
