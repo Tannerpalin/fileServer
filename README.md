@@ -1,5 +1,6 @@
 # fileServer
-Project 5, CS270: Systems Programming with Dr.Raphael Finkel, a file server written in C.<br/> Authors: Tanner Palin and Will Shapiro.
+Project 5, CS270: Systems Programming with Dr.Raphael Finkel, a file server written in C.<br/> Authors: Tanner Palin and Will Shapiro.  
+Sources and Credits: We were able to create this server by following an outline found [here](http://beej.us/guide/bgnet/html/) written by Brian Hall.
 
 ## Compilation
 * Running `make` from the command line will compile the server as well the Client methods.
