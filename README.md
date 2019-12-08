@@ -49,4 +49,4 @@ Upon success of this request, the client will receive a 100 byte cryptographic d
 ### `fileRun` Usage
 
 ## Examples
-A working example of executables can be found in the `finkelServer` folder. Use `localhost` of `127.0.0.1` for the machine name in the command line of your client applications if the server and client are running on the same machine.
+A working example of executables can be found in the `finkelServer` folder. Use `localhost` or `127.0.0.1` for the machine name in the command line of your client applications if the server and client are running on the same machine.
