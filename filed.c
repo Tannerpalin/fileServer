@@ -23,7 +23,7 @@ struct requestIn {
 };
 
 struct requestOut {
-    char returnCode;
+    char returnCode;            // 
     char padOut[3];
     unsigned short int length;
     char fileData[100];
@@ -197,7 +197,11 @@ int main(int argc, char *argv[])
                 break;
 
                 case 2:
+                
                 strcpy(typeOf, "fileDigest");
+                int saveOut;
+                char systemCall[121];
+                strcpy(systemCall, "/usr/bin/sha256sum ");
                 FILE *filePtr2;
                 filePtr2 = fopen(requestIn.requestData, "r");
                 if(filePtr2 == 0) {
@@ -206,22 +210,20 @@ int main(int argc, char *argv[])
                     send(new_fd, &requestOut, sizeof(requestOut),0);
                     break;
                 }
-                printf("file: %s\n", requestIn.requestData);
-                if (!fork()) { // this is the child process
-                    printf("in fork\n");
-                    close(fdPipe[0]);   // Close the reading end of the pipe.
-                    dup2(fdPipe[1], STDOUT_FILENO);
-                    // SOMETHING WEIRD IS GOING ON HERE.
-                    if(execl("/usr/bin/sha256sum", requestIn.requestData, (char*)NULL) == -1) {
-                        strcpy(results,"Failure");
-                        requestOut.returnCode = (char)-1;
-                    }
-                    exit(0);
-                }
-                if(read(fdPipe[0], requestOut.fileData, 100) == -1) {
-                    printf("Read error from pipe!\n");
-                }
-                close(fdPipe[0]);
+                saveOut = dup(1);
+                strcat(systemCall, requestIn.requestData);
+                int pipeFd[2];
+                pipe(pipeFd);
+                dup2(pipeFd[1], 1);
+                dup2(pipeFd[1], 2);
+                
+                system(systemCall);
+                read(pipeFd[0], requestOut.fileData, 100);
+                // Use system() instead of execvp.
+                close(pipeFd[1]);
+                close(pipeFd[0]);
+                dup2(saveOut, 1);
+                close(saveOut);
                 strcpy(results,"Success");
                 requestOut.returnCode = (char)0;
                 send(new_fd, &requestOut, sizeof(requestOut),0);
