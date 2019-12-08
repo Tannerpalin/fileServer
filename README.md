@@ -50,7 +50,7 @@ Upon success of this request, the client will receive a 100 byte cryptographic d
 ### `fileRun` Usage
 When performing a fileRun request, the execution from the command line should like:
 ```bash
-./fileDigest machineName port secretKey runType
+./fileRun machineName port secretKey runType
 ```
 * Where `machineName` is the IP Address of DNS Name of the machine that the server is running on.<br/>
 * `port` is the port number that the server will be listening to on the machine.
