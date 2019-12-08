@@ -159,6 +159,7 @@ int main(int argc, char *argv[])
             switch (requestIn.requestType) {
                 
                 case 0:
+                // new key
                 strcpy(typeOf, "newKey");
                 serverKey = (unsigned int)atoi(requestIn.requestData);  
                 requestOut.returnCode = (char)0;
@@ -167,6 +168,7 @@ int main(int argc, char *argv[])
                 break;
 
                 case 1:
+                //File Get
                 strcpy(typeOf, "fileGet");
                 FILE *filePtr;
                 long fileLength;
@@ -197,7 +199,7 @@ int main(int argc, char *argv[])
                 break;
 
                 case 2:
-                
+                // File Digest
                 strcpy(typeOf, "fileDigest");
                 int saveOut;
                 int saveErr;
@@ -235,6 +237,49 @@ int main(int argc, char *argv[])
 
                 case 3:
                 // File Run
+                strcpy(typeOf, "fileRun");
+                int saveOutRun;
+                int saveErrRun;
+                char systemCallRun[101];
+
+                if(strcmp(requestIn.requestData, "inet") == 0) {
+                    strcpy(systemCallRun, "/bin/ip address");
+                }
+                else if(strcmp(requestIn.requestData, "hosts") == 0) {
+                    strcpy(systemCallRun, "/bin/cat /etc/hosts");
+                }
+                else if(strcmp(requestIn.requestData, "service") == 0) {
+                    strcpy(systemCallRun, "/bin/cat /etc/services");
+                }
+                else if(strcmp(requestIn.requestData, "identity") == 0) {
+                    strcpy(systemCallRun, "/bin/hostname");
+                }
+                else {
+                    strcpy(results,"Failure");
+                    requestOut.returnCode = (char)-1;
+                    send(new_fd, &requestOut, sizeof(requestOut),0);
+                    break;
+                }
+                saveOutRun = dup(1);
+                saveErrRun = dup(2);
+               
+                int pipeFdRun[2];
+                pipe(pipeFdRun);
+                dup2(pipeFdRun[1], 1);
+                dup2(pipeFdRun[1], 2);
+                
+                system(systemCallRun); // Need to error check system call?
+                read(pipeFdRun[0], requestOut.fileData, 100);
+                
+                close(pipeFdRun[1]);
+                close(pipeFdRun[0]);
+                dup2(saveErrRun, 2);
+                dup2(saveOutRun, 1);
+                close(saveErrRun);
+                close(saveOutRun);
+                strcpy(results,"Success");
+                requestOut.returnCode = (char)0;
+                send(new_fd, &requestOut, sizeof(requestOut),0);
                 break;
 
                 default:

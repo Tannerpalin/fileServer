@@ -1,5 +1,5 @@
 /*
-** fileGet.c -- retrieve 100 bytes of a file.
+** fileRun.c -- retrieve 100 bytes of output from file executed on server.
 */
 
 #include <stdio.h>
@@ -63,24 +63,6 @@ int main(int argc, char *argv[])
         return -1;
     }
     
-    case "inet":
-        clientRequest.requestData = "/bin/ip address";
-        break;
-    case "hosts":
-    clientRequest.requestData = "/bin/cat /etc/hosts";
-    break;
-    case "service":
-        clientRequest.requestData = "/bin/cat /etc/services";
-        break;
-    case "identity":
-        clientRequest.requestData = "/bin/hostname";
-        break;
-    
-    
-    fprintf(stderr, "Incorrect program name");
-    exit(EXIT_FAILURE);
-        
-    
     strcpy(clientRequest.requestData,argv[4]);
     memset(&hints, 0, sizeof hints );
     hints.ai_family = AF_UNSPEC;
@@ -125,7 +107,7 @@ int main(int argc, char *argv[])
     switch (serverReturn.returnCode)    // Print file data or failure of request.
     {
     case 0:
-            printf("%s", serverReturn.fileData);
+        printf("%s", serverReturn.fileData);
         
         printf("\n");
         break;
