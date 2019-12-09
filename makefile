@@ -7,7 +7,7 @@ all: $(SERVER) $(CLIENTS)
 
 .PHONY: clean
 clean:
-	/bin/rm -rf *.o filed newKey fileGet fileDigest fileRun
+	/bin/rm -rf *.o filed newKey fileGet fileDigest fileRun project5.tar
 
 zip:
-	zip project5.zip *.c README.md
+	tar -cf project5.tar *.c README.md makefile
