@@ -3,7 +3,7 @@ Project 5, CS270: Systems Programming with Dr.Raphael Finkel, a file server writ
 Sources and Credits: We were able to create this server by following an outline found [here](http://beej.us/guide/bgnet/html/) written by Brian Hall.
 
 ## Compilation
-* Running `make` from the command line will compile the server as well the Client methods.
+* Running `make` from the command line will compile the server as well as the Client methods.
 * Running `make clean` will clean up all resulting executables and object files.
 * Running `make zip` will zip all of our `.c` files and `README.md` into a `project5.zip` for submission.
 
